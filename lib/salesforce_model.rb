@@ -1,23 +1,24 @@
-require "salesforce_model/version"
-require "salesforce_model/base"
+require 'salesforce_model/version'
 require 'active_model'
-require 'active_support/concern'
+require 'active_support'
 
 module SalesforceModel
-
+  extend ActiveSupport::Autoload
+  autoload :Base
+  # in case your application uses a per-user/per-request client, use this variable as a key to store the client using RequestStore
   mattr_accessor :client_key
   @@client_key = :restforce_client
 
+  # in case your application uses one single client for the entire app, set this to the instance of Restforce client
   mattr_accessor :singleton_client
   @@singleton_client = nil
 
+  # cache store. override with your own store, i.e. Rails.cache
+  mattr_accessor :cache
+  @@cache = ActiveSupport::Cache.lookup_store(:memory_store)
 
-
-  def picklist_values(field_name)
-    ActiveSupport::Notifications.instrument('salesforce.picklist_values', :field_name => field_name) do
-      Rails.cache.fetch([self.class.sf_model, 'picklist_values', field_name], expires_in: ENV['CACHE_PICKLIST_EXPIRATION_HOURS'].to_i.hours) do
-        client.picklist_values(self.class.sf_model, field_name).map { |elem| OpenStruct.new(elem) }
-      end
-    end
+  def picklist_cache_ttl_hours
+    ENV['CACHE_PICKLIST_EXPIRATION_HOURS'].to_i.hours rescue 24.hours
   end
+
 end

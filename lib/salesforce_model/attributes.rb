@@ -4,6 +4,7 @@ require 'active_support/hash_with_indifferent_access'
 module SalesforceModel::Attributes
   extend ActiveSupport::Concern
 
+
   def persisted?
     self.Id.present?
   end
@@ -26,12 +27,23 @@ module SalesforceModel::Attributes
 
 
   module ClassMethods
+
+    def map_model(model)
+      @mapped_model = model.to_s
+    end
+
+    def mapped_model
+      @mapped_model ||= begin
+        warn("Class #{self} does not implement the mapped_model method. Using inferred name #{self}")
+        self.to_s
+      end
+    end
+
     def mapped_attributes
       @mapped_attributes
     end
 
     def map_attributes(*args)
-      puts "map_attributes #{args}"
       options = args.extract_options!
       @mapped_attributes ||= []
       @mapped_attributes.concat args

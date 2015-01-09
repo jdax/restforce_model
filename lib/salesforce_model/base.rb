@@ -1,6 +1,7 @@
 require 'salesforce_model/attributes'
 require 'salesforce_model/callbacks'
 require 'salesforce_model/actions'
+require 'salesforce_model/client'
 require 'active_model'
 require 'active_support/concern'
 require 'request_store'
@@ -8,12 +9,12 @@ require 'request_store'
 module SalesforceModel
   class Base
     include ActiveModel::Model
-    include ActiveModel::Validations::Callbacks
     include ActiveModel::Dirty
 
-    include SalesforceModel::Attributes
-    include SalesforceModel::Callbacks
-    include SalesforceModel::Actions
+    include Attributes
+    include Callbacks
+    include Actions
+    include Client
 
     attr_accessor :client
 
@@ -25,22 +26,18 @@ module SalesforceModel
       clear_changes_information
     end
 
-    def assign_client(client)
-      @client = client unless client.nil?
-      @client ||= begin
-        if RequestStore.exist?(SalesforceModel.client_key)
-          RequestStore.read(SalesforceModel.client_key)
-        elsif SalesforceModel.singleton_client
-          SalesforceModel.singleton_client
-        else
-          raise "Please provide an adequate client either in RequestStore or in SalesforceModel.singleton_client. Can't run without a valid client"
+    def picklist_values(field_name)
+      ActiveSupport::Notifications.instrument('salesforce.picklist_values', :field_name => field_name) do
+        Rails.cache.fetch([self.class.mapped_model, 'picklist_values', field_name], expires_in: SalesforceModel.picklist_cache_ttl_hours) do
+          client.picklist_values(self.class.mapped_model, field_name).map { |elem| OpenStruct.new(elem) }
         end
       end
     end
 
-
     def self.inherited(base)
       base.map_attributes :Id
     end
+
+
   end
 end
