@@ -22,6 +22,7 @@ module SalesforceModel
     def initialize(attributes = {})
       assign_client(attributes.delete(SalesforceModel.client_key))
       attributes.delete(:attributes)
+      handle_parent_attributes(attributes)
       super(attributes)
       clear_changes_information
     end
@@ -34,9 +35,14 @@ module SalesforceModel
       end
     end
 
+    def handle_parent_attributes(attributes)
+       # do nothign here. this is to be overriden by subclasses as needed
+    end
+
     def self.inherited(base)
       base.map_attributes :Id
     end
+
 
 
   end

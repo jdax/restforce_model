@@ -43,6 +43,21 @@ module SalesforceModel::Attributes
       @mapped_attributes
     end
 
+    def map_parent_attributes(*args)
+      parent = args.shift
+      @parent_attributes ||= HashWithIndifferentAccess.new
+      @parent_attributes[parent] ||= HashWithIndifferentAccess.new
+      args.each do |arg|
+        if arg.keys.first == :Id &&  arg.values.first == :Id
+          @parent_attributes[parent].merge! arg.keys.first => :"#{parent.to_s}_#{arg.values.first.to_s}"
+        else
+          @parent_attributes[parent].merge! arg
+        end
+      end
+      @parent_attributes
+    end
+
+
     def map_attributes(*args)
       options = args.extract_options!
       @mapped_attributes ||= []

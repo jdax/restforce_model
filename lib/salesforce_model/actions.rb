@@ -60,7 +60,6 @@ module SalesforceModel::Actions
     end
 
 
-
     def fields_for_query
       mapped_attributes.map(&:to_s).join(",")
     end
@@ -69,15 +68,25 @@ module SalesforceModel::Actions
       mapped_attributes.reject { |f| [:Id].include?(f) }.map(&:to_s).join(",")
     end
 
-    def find(id)
+    # Retrieve an bobject by `Id` using Restforce.
+    #
+    # It uses `#mapped_model` class method and `#query_fields` as well as the passed in `Id` to retireve a record
+    #
+    # raises a `SalesforceModel::Exception::RecordNotFound` if the query returns nil
+    #
+    def find(id, client = nil)
+      client ||= self.client
       ActiveSupport::Notifications.instrument("salesforce.find", :model => self.to_s) do
-        data = SalesforceModel.cache.fetch([self, id]) do
-          client.query("SELECT #{fields_for_query} FROM #{mapped_model} WHERE Id = '#{id}'").first
-        end
         begin
-          new(data.symbolize_keys.merge({SalesforceModel.client_key => client}))
+          # fetch data from cache or Salesforce API
+          data = SalesforceModel.cache.fetch([self, id]) do
+            client.query("SELECT #{fields_for_query} FROM #{mapped_model} WHERE Id = '#{id}'").first.symbolize_keys
+          end
+          # instantiate the object and pass in the exact same client it was retrieved with
+          new(data.merge({SalesforceModel.client_key => client}))
         rescue Exception => e
-          raise "SalesforceModel::Exception::RecordNotFound"
+          # most likely the exception is due to calling symbolize_keys on nil
+          raise Exception::RecordNotFound
         end
       end
     end
