@@ -4,7 +4,6 @@ require 'dotenv'
 require 'restforce'
 require 'simplecov'
 require 'coveralls'
-require_relative 'spec_helper'
 
 SimpleCov.formatters = [SimpleCov::Formatter::HTMLFormatter, Coveralls::SimpleCov::Formatter]
 
@@ -21,3 +20,6 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 end
+
+# to run tests:
+# bundle exec rspec spec/salesforce_model/actions_spec.rb
