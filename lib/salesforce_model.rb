@@ -21,12 +21,16 @@ module SalesforceModel
     ENV['CACHE_PICKLIST_EXPIRATION_HOURS'].to_i.hours rescue 24.hours
   end
 
-  module Exception
-    class RecordNotFound < ::Exception
+  module Error
+    class RecordNotFound < ::StandardError
 
     end
 
-    class MissingOrInvalidClient < ::Exception
+    class MissingOrInvalidClient < ::StandardError
+
+    end
+
+    class UnhandledParentAttributes < ::StandardError
 
     end
   end
