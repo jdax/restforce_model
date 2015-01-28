@@ -20,17 +20,19 @@ describe SalesforceModel do
     end
   end
   describe '#update_attributes' do
-    it 'updates attribute name' do
+    it 'doesn\'t update protected attributes' do
       contact = Contact.find "003J000000qgi25", SalesforceModel.singleton_client
+      oldName = contact.Name
       contact.update_attributes(:Name => "Test Name")
-      expect(contact.Name).to eq("Test Name")
-     end
-  end
-  describe 'contact' do
-    it 'finds contact by id' do
       contact = Contact.find "003J000000qgi25", SalesforceModel.singleton_client
-      expect(contact.id).to eq("003J000000qgi25IAA")
+      expect(contact.Name).to eq(oldName)
+    end
+    it 'updates unprotected attributes' do
+      contact = Contact.find "003J000000qgi25", SalesforceModel.singleton_client
+      oldName = contact.Name
+      contact.update_attributes(:Name => "Test Name")
+      contact = Contact.find "003J000000qgi25", SalesforceModel.singleton_client
+      expect(contact.Name).to eq("Test Name")
     end
   end
-
 end
