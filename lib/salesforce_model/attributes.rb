@@ -25,6 +25,15 @@ module SalesforceModel::Attributes
 
   alias_method :attributes=, :assign_attributes
 
+  def handle_parent_attributes(attributes)
+    self.class.mapped_parent_attributes.each do |parent, fields|
+      parent_hash = attributes.delete(parent.to_sym)
+      fields.each do |field, mapped_to|
+        attributes[mapped_to] = parent_hash[field]
+      end
+    end
+  end
+
 
   module ClassMethods
 
@@ -43,16 +52,23 @@ module SalesforceModel::Attributes
       @mapped_attributes
     end
 
+    def mapped_parent_attributes
+      @parent_attributes
+    end
+
     def map_parent_attributes(*args)
       parent = args.shift
       @parent_attributes ||= HashWithIndifferentAccess.new
       @parent_attributes[parent] ||= HashWithIndifferentAccess.new
       args.each do |arg|
-        if arg.keys.first == :Id &&  arg.values.first == :Id
-          @parent_attributes[parent].merge! arg.keys.first => :"#{parent.to_s}_#{arg.values.first.to_s}"
+
+        if arg.keys.first == :Id && arg.values.first == :Id
+          attr_hash = {arg.keys.first => :"#{parent.to_s}_#{arg.values.first.to_s}"}
         else
-          @parent_attributes[parent].merge! arg
+          attr_hash = arg
         end
+        @parent_attributes[parent].merge! attr_hash
+        attr_accessor *attr_hash.values.map(&:to_sym)
       end
       @parent_attributes
     end

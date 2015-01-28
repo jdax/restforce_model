@@ -35,15 +35,8 @@ module SalesforceModel
       end
     end
 
-    def handle_parent_attributes(attributes)
-       # do nothign here. this is to be overriden by subclasses as needed
-    end
-
     def self.inherited(base)
       base.map_attributes :Id
     end
-
-
-
   end
 end

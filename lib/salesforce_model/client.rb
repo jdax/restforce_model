@@ -16,7 +16,7 @@ module SalesforceModel::Client
       elsif SalesforceModel.singleton_client
         SalesforceModel.singleton_client
       else
-        raise "Please provide an adequate client either in RequestStore or in SalesforceModel.singleton_client. Can't run without a valid client"
+        raise SalesforceModel::Error::MissingOrInvalidClient, "Please provide an adequate client either in RequestStore or in SalesforceModel.singleton_client. Can't run without a valid client"
       end
     end
   end

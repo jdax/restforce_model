@@ -55,13 +55,22 @@ module SalesforceModel::Actions
       end
     end
 
+    alias_method :where, :query
+
     def display_fields
       mapped_attributes.reject { |a| a == :Id }
     end
 
 
     def fields_for_query
-      mapped_attributes.map(&:to_s).join(",")
+      query_fields = mapped_attributes
+      mapped_parent_attributes.each do |parent, fields|
+        fields.each_key do |field|
+
+          query_fields.push("#{parent}.#{field}")
+        end
+      end
+      query_fields.map(&:to_s).join(',')
     end
 
     def fields_for_create
@@ -86,7 +95,8 @@ module SalesforceModel::Actions
           new(data.merge({SalesforceModel.client_key => client}))
         rescue Exception => e
           # most likely the exception is due to calling symbolize_keys on nil
-          raise Exception::RecordNotFound
+          # puts e.inspect
+          raise SalesforceModel::Error::RecordNotFound.new(e), "Record with Id: #{id} cannot be found"
         end
       end
     end
