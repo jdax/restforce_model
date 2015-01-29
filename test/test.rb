@@ -25,11 +25,11 @@ end
 class Employment < SalesforceModel::Base
   map_model :Employment__c
   map_attributes :Name
-  map_parent_attributes :Employer, :Name => :Employer_Name
+  map_parent_attributes :Employer__r, :Name => :Employer_Name, :Industry__c => :Employer_Industry
 end
 
-contact = Contact.find "003J000000qgi25", SalesforceModel.singleton_client
-contact.Name
+# contact = Contact.find "003J000000qgi25", SalesforceModel.singleton_client
+# contact.Name
 
 emp = Employment.find "a0cJ0000002lRXg"
 emp.Name
