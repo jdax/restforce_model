@@ -10,7 +10,7 @@ SimpleCov.formatters = [SimpleCov::Formatter::HTMLFormatter, Coveralls::SimpleCo
 SimpleCov.start do
   add_filter '/spec/'
   add_group 'lib', '/lib'
-  minimum_coverage(99.61)
+  minimum_coverage(75.00)
 end
 
 Dotenv.load
