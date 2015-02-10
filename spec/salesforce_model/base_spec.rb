@@ -21,9 +21,17 @@ describe SalesforceModel do
   end
   describe 'Base' do
     describe '#initialize' do
-      it 'creates a new object' do
-        contact = Contact.new(:Id => "01")
-        expect(contact.Id).to eq("01")
+      it 'creates a new contact of class Base' do
+        contact = Contact.new
+        expect(contact).to be_a SalesforceModel::Base
+      end
+      it 'assigns Id through argument' do
+      contact = Contact.new(:Id => "01")
+      expect(contact.Id).to eq("01")
+      end
+      it 'assigns mapped attributes through argument' do
+        contact = Contact.new(:Name => "Test Name")
+        expect(contact.Name).to eq("Test Name")
       end
     end
   end
