@@ -1,4 +1,5 @@
 # SalesforceModel
+[![Coverage Status](https://coveralls.io/repos/socialdriver/salesforce_model/badge.svg)](https://coveralls.io/r/socialdriver/salesforce_model)
 
 TODO: Write a gem description
 
