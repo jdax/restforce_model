@@ -59,11 +59,11 @@ module SalesforceModel::Attributes
     end
 
     def mapped_attributes
-      @mapped_attributes
+      @mapped_attributes ||= []
     end
 
     def mapped_parent_attributes
-      @parent_attributes
+      @parent_attributes ||= HashWithIndifferentAccess.new
     end
 
     def map_parent_attributes(*args)
