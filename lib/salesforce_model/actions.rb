@@ -46,7 +46,7 @@ module SalesforceModel::Actions
   module ClassMethods
     def query(conditions = nil)
       ActiveSupport::Notifications.instrument("salesforce.query", :model => self.to_s, :conditions => conditions) do
-        conditions.prepend("WHERE ") unless conditions.blank?
+        conditions = prepare_conditions(conditions)
         results = SalesforceModel.cache.fetch([self, :query, conditions]) do
           items = client.query("SELECT #{fields_for_query} FROM #{mapped_model} #{conditions}")
           items.each { |item| SalesforceModel.cache.write([self, item[:Id]], item) }
@@ -56,6 +56,12 @@ module SalesforceModel::Actions
     end
 
     alias_method :where, :query
+
+
+    def prepare_conditions(conditions)
+      conditions.prepend("RecordType.DeveloperName = '#{mapped_record_type}' ") unless mapped_record_type.blank?
+      conditions.prepend("WHERE ") unless conditions.blank?
+    end
 
     def display_fields
       mapped_attributes.reject { |a| a == :Id }

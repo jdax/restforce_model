@@ -39,6 +39,14 @@ module SalesforceModel::Attributes
 
   module ClassMethods
 
+    def map_record_type(record_type)
+      @mapped_record_type = record_type.to_s
+    end
+
+    def mapped_record_type
+      @mapped_record_type
+    end
+
     def map_model(model)
       @mapped_model = model.to_s
     end
