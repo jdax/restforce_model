@@ -81,6 +81,7 @@ user_hash = {
 ...
 client = Restforce.new user_hash[:credentials]
 ```
+### Override with a specific instance of client
 SalesForce model maske is easy to persist the client througout the request cycle, so that it can be referenced, without having to pass it in method signature, by using [request_store](https://github.com/steveklabnik/request_store):
 ```ruby 
 client = Restforce.new user_hash[:credentials]
