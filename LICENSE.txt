@@ -1,4 +1,4 @@
-Copyright (c) 2015 Piotr Steininger
+Copyright (c)  2015 Social Driver
 
 MIT License
 

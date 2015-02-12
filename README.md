@@ -102,11 +102,41 @@ Contact.find "ContactID", SalesforceModel.singleton_client
 
 ## Usage
 
-TODO: Write usage instructions here
+### Mapping a Standard Object:
+```ruby
+class Contact < SalesforceModel::Base
+  map_attributes :FirstName, :LastName, :Email, :AccountId
+  map_parent_attributes :Account, :Name => :AccountName
+end
 
+Contact.find("13909023")
+=> #<Contact:0x007fadc3d02618  .. @AccountId="001S000000fkeFe", @AccountName="Social Driver" ... >
+
+```
+### Mapping a Custom Object:
+```ruby
+class Employment < SalesforceModel::Base
+  map_model :Employment__c
+  map_attributes :Name
+  map_attributes :DateStarted__c, :DateEnded__c, as: :date
+  map_parent_attributes :Employer__r, :Name => :EmployerName
+end
+
+Employment.query("Contact__c = '001S000000fkeFe'")
+=> [#<Employment:... @EmployerName="Social Driver" ... >,...]
+
+```
+### Mapping an Object, with a record type:
+```ruby
+class Account < SalesforceModel::Base
+  map_model :Account
+  map_record_type :Supplier
+  map_attributes :Name
+end
+```
 ## Contributing
 
-1. Fork it ( http://github.com/<my-github-username>/salesforce_model/fork )
+1. Fork it ( http://github.com/socialdriver/salesforce_model/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
