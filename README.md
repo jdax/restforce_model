@@ -1,7 +1,20 @@
 # SalesforceModel
 [![Coverage Status](https://coveralls.io/repos/socialdriver/salesforce_model/badge.svg)](https://coveralls.io/r/socialdriver/salesforce_model)
 
-TODO: Write a gem description
+An ActiveModel wrapper to [Restforce](https://github.com/ejholmes/restforce) client. This gem provides:
+ - Three options to use a Restforce client: singleton, per-user/per-request, passed in a method as reference
+ - Caching as a first class citizen: relies on ActiveSupport::Cache, defaulting to MemoryCache
+ - Ability to map one Salesforce object to Multiple different classes (smaller API requests)
+ - Narrowing scope to a particular Record Type in Salesforce
+ - Declarative field mapping
+ - Declarative mapping of parent attributes (reduces number of API requests)
+ - Supports all ActiveModel features:
+    - Validations
+    - Change Tracking (ActiveModel::Dirty)
+    - Naming
+    - Translations
+    - Callbacks
+ - more features to come...
 
 ## Installation
 
