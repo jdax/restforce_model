@@ -6,11 +6,11 @@ require 'salesforce_model/version'
 Gem::Specification.new do |spec|
   spec.name = "salesforce_model"
   spec.version = SalesforceModel::VERSION
-  spec.authors = ["Piotr Steininger"]
-  spec.email = ["piotr@socialdriver.com"]
+  spec.authors = ["Piotr Steininger", "Maggie Epps"]
+  spec.email = ["piotr@socialdriver.com", "maggie@socialdriver.com"]
   spec.summary = %q{An ActiveModel wrapper to Restforce, an Salesfore REST API Cleint for Ruby }
   spec.description = %q{This gem allows you to create ActiveRecord-like classes and add mapped attributes/fields from salesfocre}
-  spec.homepage = ""
+  spec.homepage = "https://github.com/socialdriver/salesforce_model"
   spec.license = "MIT"
 
   spec.files = `git ls-files -z`.split("\x0")
@@ -19,13 +19,13 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_development_dependency "bundler", "~> 1.5"
-  spec.add_development_dependency "rake"
-  spec.add_development_dependency "dotenv"
-  spec.add_development_dependency "rspec", "> 2.6"
-  spec.add_development_dependency 'simplecov', '>= 0.9'
-  spec.add_development_dependency "coveralls"
-  spec.add_dependency "restforce", "> 1.5.0"
-  spec.add_dependency "activesupport", "> 4.0.0"
-  spec.add_dependency "activemodel", "> 4.0.0"
-  spec.add_dependency "request_store", "~> 1.1.0"
+  spec.add_development_dependency "rake", "~> 10.4"
+  spec.add_development_dependency "dotenv", "~> 1.0"
+  spec.add_development_dependency "rspec", "~> 2.6"
+  spec.add_development_dependency 'simplecov', '~> 0.9'
+  spec.add_development_dependency "coveralls", '~> 0.9'
+  spec.add_dependency "restforce", "~> 1.5"
+  spec.add_dependency "activesupport", "> 4.0.0", "< 4.3.0"
+  spec.add_dependency "activemodel", "> 4.0.0", "< 4.3.0"
+  spec.add_dependency "request_store", "~> 1.1"
 end
