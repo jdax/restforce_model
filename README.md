@@ -128,9 +128,15 @@ Employment.query("Contact__c = '001S000000fkeFe'")
 ```
 ### Mapping an Object, with a record type:
 ```ruby
-class Account < SalesforceModel::Base
+class Supplier < SalesforceModel::Base
   map_model :Account
   map_record_type :Supplier
+  map_attributes :Name
+end
+
+class Customer < SalesforceModel::Base
+  map_model :Account
+  map_record_type :Customer
   map_attributes :Name
 end
 ```
