@@ -69,10 +69,9 @@ module SalesforceModel::Actions
 
 
     def fields_for_query
-      query_fields = mapped_attributes
+      query_fields = mapped_attributes.dup
       mapped_parent_attributes.each do |parent, fields|
         fields.each_key do |field|
-
           query_fields.push("#{parent}.#{field}")
         end
       end
