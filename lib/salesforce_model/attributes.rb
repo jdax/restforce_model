@@ -98,6 +98,9 @@ module SalesforceModel::Attributes
         elsif options && options[:as] == :boolean
           self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg}; @#{arg}= (val == true || val == 'true' || val == '1');end")
           self.class_eval("def display_#{arg};I18n.l(self.#{arg})rescue nil;end")
+        elsif options && options[:as] == :integer
+          self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=val.to_i rescue nil;end")
+          self.class_eval("def display_#{arg};I18n.l(self.#{arg})rescue nil;end")
         else
           self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=val;end")
           self.class_eval("def display_#{arg};self.#{arg};end")
