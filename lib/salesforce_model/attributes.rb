@@ -89,18 +89,25 @@ module SalesforceModel::Attributes
       define_attribute_methods args
       attr_reader *args
       args.each do |arg|
-        if options && options[:as] == :date
-          self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=Date.parse(val) rescue nil;end")
-          self.class_eval("def display_#{arg};I18n.l(self.#{arg})rescue nil;end")
-        elsif options && options[:as] == :datetime
-          self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=DateTime.parse(val) rescue nil;end")
-          self.class_eval("def display_#{arg};I18n.l(self.#{arg})rescue nil;end")
-        elsif options && options[:as] == :boolean
-          self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg}; @#{arg}= (val == true || val == 'true' || val == '1');end")
-          self.class_eval("def display_#{arg};I18n.l(self.#{arg})rescue nil;end")
-        elsif options && options[:as] == :integer
-          self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=val.to_i rescue nil;end")
-          self.class_eval("def display_#{arg};I18n.l(self.#{arg})rescue nil;end")
+        if options[:as]
+          case options[:as]
+          when :date
+            self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=Date.parse(val) rescue nil;end")
+            self.class_eval("def display_#{arg};I18n.l(self.#{arg})rescue nil;end")
+          when :datetime
+            self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=DateTime.parse(val) rescue nil;end")
+            self.class_eval("def display_#{arg};I18n.l(self.#{arg})rescue nil;end")
+          when :boolean
+            self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg}; @#{arg}= (val == true || val == 'true' || val == '1');end")
+            self.class_eval("def display_#{arg};I18n.l(self.#{arg})rescue nil;end")
+          when :integer
+            self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=val.to_i rescue nil;end")
+            self.class_eval("def display_#{arg};I18n.l(self.#{arg})rescue nil;end")
+          else
+            warn("Attribute option #{option[:as]} not handled")
+            self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=val;end")
+            self.class_eval("def display_#{arg};self.#{arg};end")
+          end
         else
           self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=val;end")
           self.class_eval("def display_#{arg};self.#{arg};end")
