@@ -87,8 +87,6 @@ module SalesforceModel::Attributes
       @mapped_attributes ||= []
       @mapped_attributes.concat args
       define_attribute_methods args
-      format_attributes =-> do |arg, val, formatter|
-      end
       attr_reader *args
       args.each do |arg|
         if options[:as]
