@@ -87,30 +87,26 @@ module SalesforceModel::Attributes
       @mapped_attributes ||= []
       @mapped_attributes.concat args
       define_attribute_methods args
+      format_attributes =-> do |arg, val, formatter|
+      end
       attr_reader *args
       args.each do |arg|
         if options[:as]
           case options[:as]
           when :date
             self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=Date.parse(val) rescue nil;end")
-            self.class_eval("def display_#{arg};I18n.l(self.#{arg})rescue nil;end")
           when :datetime
             self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=DateTime.parse(val) rescue nil;end")
-            self.class_eval("def display_#{arg};I18n.l(self.#{arg})rescue nil;end")
           when :boolean
             self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg}; @#{arg}= (val == true || val == 'true' || val == '1');end")
-            self.class_eval("def display_#{arg};I18n.l(self.#{arg})rescue nil;end")
           when :integer
             self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=val.to_i rescue nil;end")
-            self.class_eval("def display_#{arg};I18n.l(self.#{arg})rescue nil;end")
           else
             warn("Attribute option #{option[:as]} not handled")
             self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=val;end")
-            self.class_eval("def display_#{arg};self.#{arg};end")
           end
         else
           self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=val;end")
-          self.class_eval("def display_#{arg};self.#{arg};end")
         end
       end
     end
