@@ -27,6 +27,7 @@ module SalesforceModel::Attributes
 
   def handle_parent_attributes(attributes)
     self.class.mapped_parent_attributes.each do |parent, fields|
+      parent_hash = attributes.delete(parent.to_sym)
       unless parent_hash.blank?
         fields.each do |field, mapped_to|
           attributes[mapped_to] = parent_hash[field]
