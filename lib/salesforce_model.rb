@@ -17,7 +17,7 @@ module SalesforceModel
   mattr_accessor :cache
   @@cache = ActiveSupport::Cache.lookup_store(:memory_store)
 
-  def picklist_cache_ttl_hours
+  def self.picklist_cache_ttl_hours
     ENV['CACHE_PICKLIST_EXPIRATION_HOURS'].to_i.hours rescue 24.hours
   end
 
