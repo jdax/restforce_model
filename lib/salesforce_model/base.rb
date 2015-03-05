@@ -2,6 +2,7 @@ require 'salesforce_model/attributes'
 require 'salesforce_model/callbacks'
 require 'salesforce_model/actions'
 require 'salesforce_model/client'
+require 'salesforce_model/picklists'
 require 'active_model'
 require 'active_support/concern'
 require 'request_store'
@@ -15,9 +16,9 @@ module SalesforceModel
     include Callbacks
     include Actions
     include Client
+    include Picklists
 
     attr_accessor :client
-
 
     def initialize(attributes = {})
       assign_client(attributes.delete(SalesforceModel.client_key))
@@ -25,14 +26,6 @@ module SalesforceModel
       handle_parent_attributes(attributes)
       super(attributes)
       clear_changes_information
-    end
-
-    def picklist_values(field_name)
-      ActiveSupport::Notifications.instrument('salesforce.picklist_values', :field_name => field_name) do
-        Rails.cache.fetch([self.class.mapped_model, 'picklist_values', field_name], expires_in: SalesforceModel.picklist_cache_ttl_hours) do
-          client.picklist_values(self.class.mapped_model, field_name).map { |elem| OpenStruct.new(elem) }
-        end
-      end
     end
 
     def self.inherited(base)
