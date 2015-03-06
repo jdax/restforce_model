@@ -13,7 +13,7 @@ module SalesforceModel::Picklists
         description = SalesforceModel.cache.fetch([self.mapped_model, 'describe'], expires_in: SalesforceModel.picklist_cache_ttl_hours) do
           client.describe(self.mapped_model)
         end
-        PicklistValues.new(description['fields'], field, options)
+        PicklistValues.new(description['fields'], field, options).map { |elem| OpenStruct.new(elem) }
       end
     end
     ##

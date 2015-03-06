@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    salesforce_model (0.2.0)
+    salesforce_model (0.3.0)
       activemodel (> 4.0.0, < 4.3.0)
       activesupport (> 4.0.0, < 4.3.0)
       request_store (~> 1.1)
