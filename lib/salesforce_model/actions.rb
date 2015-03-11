@@ -136,7 +136,8 @@ module SalesforceModel::Actions
         rescue Exception => e
           # most likely the exception is due to calling symbolize_keys on nil
           # puts e.inspect
-          raise SalesforceModel::Error::RecordNotFound.new(e), "Record with Id: #{id} cannot be found"
+
+          raise SalesforceModel::Error::RecordNotFound.new(e), "Record with Id: #{id} cannot be found. #{e.message}"
         end
       end
     end
