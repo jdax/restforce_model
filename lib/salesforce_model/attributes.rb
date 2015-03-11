@@ -14,7 +14,7 @@ module SalesforceModel::Attributes
   end
 
   def attributes
-    ActiveSupport::HashWithIndifferentAccess.new Hash[self.class.mapped_attributes.map { |ma| [ma.to_sym, public_send(ma)] }]
+    ActiveSupport::HashWithIndifferentAccess.new Hash[self.class.mapped_attributes.keys.map { |ma| [ma.to_sym, public_send(ma)] }]
   end
 
   def assign_attributes(new_attributes)
@@ -59,7 +59,7 @@ module SalesforceModel::Attributes
     end
 
     def mapped_attributes
-      @mapped_attributes ||= []
+      @mapped_attributes ||= HashWithIndifferentAccess.new
     end
 
     def mapped_parent_attributes
@@ -71,7 +71,6 @@ module SalesforceModel::Attributes
       @parent_attributes ||= HashWithIndifferentAccess.new
       @parent_attributes[parent] ||= HashWithIndifferentAccess.new
       args.each do |arg|
-
         if arg.keys.first == :Id && arg.values.first == :Id
           attr_hash = {arg.keys.first => :"#{parent.to_s}_#{arg.values.first.to_s}"}
         else
@@ -83,32 +82,46 @@ module SalesforceModel::Attributes
       @parent_attributes
     end
 
-
     def map_attributes(*args)
       options = args.extract_options!
-      @mapped_attributes ||= []
-      @mapped_attributes.concat args
+      data_type = options[:as] || :string
       define_attribute_methods args
       attr_reader *args
-      args.each do |arg|
-        if options[:as]
-          case options[:as]
-          when :date
-            self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=Date.parse(val) rescue nil;end")
-          when :datetime
-            self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=DateTime.parse(val) rescue nil;end")
-          when :boolean
-            self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg}; @#{arg}= (val == true || val == 'true' || val == '1');end")
-          when :integer
-            self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=val.to_i rescue nil;end")
-          else
-            warn("Attribute option #{option[:as]} not handled")
-            self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=val;end")
+
+      @mapped_attributes ||= HashWithIndifferentAccess.new
+      args.each do |field|
+        @mapped_attributes.store(field, data_type)
+        self.class_eval <<-eoruby, __FILE__, __LINE__ + 1
+          def #{field}=(value)
+            value = self.class.from_soql(:#{field}, value)
+            #{field}_will_change! unless value == @#{field}
+            @#{field} = value
           end
-        else
-          self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=val;end")
-        end
+        eoruby
       end
+
+
+      # args.each do |arg|
+      #   if options[:as]
+      #     case options[:as]
+      #       when :multi_select
+      #         self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=Date.parse(val) rescue nil;end")
+      #       when :date
+      #         self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=Date.parse(val) rescue nil;end")
+      #       when :datetime
+      #         self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=DateTime.parse(val) rescue nil;end")
+      #       when :boolean
+      #         self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg}; @#{arg}= (val == true || val == 'true' || val == '1');end")
+      #       when :integer
+      #         self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=val.to_i rescue nil;end")
+      #       else
+      #         warn("Attribute option #{option[:as]} not handled")
+      #         self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=val;end")
+      #     end
+      #   else
+      #     self.class_eval("def #{arg}=(val);#{arg}_will_change! unless val == @#{arg} || (val.blank? && @#{arg}.blank?);@#{arg}=val;end")
+      #   end
+      # end
     end
   end
 end

@@ -9,7 +9,7 @@ module SalesforceModel::Actions
     assign_attributes(new_attributes)
     run_callbacks :save do
       if valid?
-        client.update(self.class.mapped_model, attributes.select { |k, v| changes.include?(k) }.merge(Id: id))
+        client.update!(self.class.mapped_model, attributes_for_update)
         SalesforceModel.cache.delete([self.class, id])
         SalesforceModel.cache.delete_matched("#{self.class}/query/*")
         true
@@ -23,7 +23,7 @@ module SalesforceModel::Actions
     run_callbacks :save do
       if valid?
         ActiveSupport::Notifications.instrument("salesforce.create", :model => self.class.to_s) do
-          self.Id = client.create!(self.class.mapped_model, attributes.select { |k, v| self.class.fields_for_create.include?(k) && v.present? })
+          self.Id = client.create!(self.class.mapped_model, attributes_for_create)
           SalesforceModel.cache.delete_matched("#{self.class}/query/*")
         end
         true
@@ -43,7 +43,42 @@ module SalesforceModel::Actions
     end
   end
 
+  def attributes_for_create
+    attributes_for_create = attributes
+                                .reject { |k, v| k.to_sym == :Id }
+                                .select { |k, v| self.class.mapped_attributes.has_key?(k) && v.present? }
+    attributes_for_create.each { |k, v| attributes_for_create[k] = self.class.to_soql(k, v) }
+  end
+
+  def attributes_for_update
+    attributes_for_update = attributes.select { |k, v| changes.include?(k) || k.to_sym == :Id }
+    attributes_for_update.each { |k, v| attributes_for_update[k] = self.class.to_soql(k, v) }
+  end
+
+  private :attributes_for_create
+  private :attributes_for_update
+
   module ClassMethods
+
+    def to_soql(field, value)
+      type = self.mapped_attributes[field]
+      unless type == :string
+        converter = "SalesforceModel::#{type.to_s.camelize}Converter".constantize rescue nil
+        value = converter.to_soql(value) unless converter.nil?
+      end
+      value
+    end
+
+    def from_soql(field, value)
+      type = self.mapped_attributes[field]
+      unless type == :string
+        converter = "SalesforceModel::#{type.to_s.camelize}Converter".constantize rescue nil
+        value = converter.from_soql(value) unless converter.nil?
+      end
+      value
+    end
+
+    # TODO add handling of passed in client
     def query(conditions = nil)
       ActiveSupport::Notifications.instrument("salesforce.query", :model => self.to_s, :conditions => conditions) do
         conditions = prepare_conditions(conditions)
@@ -64,12 +99,12 @@ module SalesforceModel::Actions
     end
 
     def display_fields
-      mapped_attributes.reject { |a| a == :Id }
+      mapped_attributes.keys.reject { |a| a == :Id }
     end
 
 
     def fields_for_query
-      query_fields = mapped_attributes.dup
+      query_fields = mapped_attributes.keys.dup
       mapped_parent_attributes.each do |parent, fields|
         fields.each_key do |field|
           query_fields.push("#{parent}.#{field}")
@@ -79,10 +114,10 @@ module SalesforceModel::Actions
     end
 
     def fields_for_create
-      mapped_attributes.reject { |f| [:Id].include?(f) }.map(&:to_s).join(",")
+      mapped_attributes.keys.reject { |f| [:Id].include?(f) }
     end
 
-    # Retrieve an bobject by `Id` using Restforce.
+    # Retrieve an object by `Id` using Restforce.
     #
     # It uses `#mapped_model` class method and `#query_fields` as well as the passed in `Id` to retireve a record
     #

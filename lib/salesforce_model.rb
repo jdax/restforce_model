@@ -21,6 +21,52 @@ module SalesforceModel
     ENV['CACHE_PICKLIST_EXPIRATION_HOURS'].to_i.hours rescue 24.hours
   end
 
+  class DateConverter
+    def self.from_soql(value)
+      Date.parse(value) rescue nil
+    end
+    def self.to_soql(value)
+      value.strftime("%Y-%m-%d")
+    end
+  end
+  class DateTimeConverter
+    def self.from_soql(value)
+      DateTime.parse(value) rescue nil
+    end
+    def self.to_soql(value)
+      value.strftime("%Y-%m-%dT%H:%M:%S.%L%z")
+    end
+  end
+  class BooleanConverter
+    def self.from_soql(value)
+      (value == true || value == 'true' || value == '1')
+    end
+    def self.to_soql(value)
+      value
+    end
+  end
+  class IntegerConverter
+    def self.from_soql(value)
+      value.to_i rescue nil
+    end
+    def self.to_soql(value)
+      value
+    end
+  end
+  class MultiSelectConverter
+
+    def self.from_soql(value)
+      if value.kind_of? String
+        value = value.split(';') rescue []
+      end
+      value
+    end
+
+    def self.to_soql(value)
+      value.reject { |v| v.blank? }.join("\;") rescue ""
+    end
+  end
+
   module Error
     class RecordNotFound < ::StandardError
 
