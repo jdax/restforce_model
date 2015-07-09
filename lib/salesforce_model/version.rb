@@ -1,3 +1,3 @@
-module SalesforceModel
+module RestforceModel
   VERSION = "0.3.0"
 end

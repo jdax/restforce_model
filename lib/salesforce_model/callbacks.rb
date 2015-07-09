@@ -1,7 +1,7 @@
 require 'active_support/concern'
 require 'active_model/callbacks'
 
-module SalesforceModel::Callbacks
+module RestforceModel::Callbacks
   extend ActiveSupport::Concern
   include ActiveModel::Callbacks
 

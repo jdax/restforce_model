@@ -1,7 +1,7 @@
 require 'active_support/concern'
 require 'active_model/validations'
 
-module SalesforceModel::Actions
+module RestforceModel::Actions
   extend ActiveSupport::Concern
   include ActiveModel::Validations
 
@@ -10,8 +10,8 @@ module SalesforceModel::Actions
     run_callbacks :save do
       if valid?
         client.update!(self.class.mapped_model, attributes_for_update)
-        SalesforceModel.cache.delete([self.class, id])
-        SalesforceModel.cache.delete_matched("#{self.class}/query/*")
+        RestforceModel.cache.delete([self.class, id])
+        RestforceModel.cache.delete_matched("#{self.class}/query/*")
         true
       else
         false
@@ -24,7 +24,7 @@ module SalesforceModel::Actions
       if valid?
         ActiveSupport::Notifications.instrument("salesforce.create", :model => self.class.to_s) do
           self.Id = client.create!(self.class.mapped_model, attributes_for_create)
-          SalesforceModel.cache.delete_matched("#{self.class}/query/*")
+          RestforceModel.cache.delete_matched("#{self.class}/query/*")
         end
         true
       else
@@ -37,8 +37,8 @@ module SalesforceModel::Actions
     run_callbacks :destroy do
       ActiveSupport::Notifications.instrument("salesforce.destroy", :model => self.class.to_s) do
         client.destroy!(self.class.mapped_model, id)
-        SalesforceModel.cache.delete([self.class, id])
-        SalesforceModel.cache.delete_matched("#{self.class}/query/*")
+        RestforceModel.cache.delete([self.class, id])
+        RestforceModel.cache.delete_matched("#{self.class}/query/*")
       end
     end
   end
@@ -63,7 +63,7 @@ module SalesforceModel::Actions
     def to_soql(field, value)
       type = self.mapped_attributes[field]
       unless type == :string
-        converter = "SalesforceModel::#{type.to_s.camelize}Converter".constantize rescue nil
+        converter = "RestforceModel::#{type.to_s.camelize}Converter".constantize rescue nil
         value = converter.to_soql(value) unless converter.nil?
       end
       value
@@ -72,7 +72,7 @@ module SalesforceModel::Actions
     def from_soql(field, value)
       type = self.mapped_attributes[field]
       unless type == :string
-        converter = "SalesforceModel::#{type.to_s.camelize}Converter".constantize rescue nil
+        converter = "RestforceModel::#{type.to_s.camelize}Converter".constantize rescue nil
         value = converter.from_soql(value) unless converter.nil?
       end
       value
@@ -82,9 +82,9 @@ module SalesforceModel::Actions
     def query(conditions = nil)
       ActiveSupport::Notifications.instrument("salesforce.query", :model => self.to_s, :conditions => conditions) do
         conditions = prepare_conditions(conditions)
-        results = SalesforceModel.cache.fetch([self, :query, conditions]) do
+        results = RestforceModel.cache.fetch([self, :query, conditions]) do
           items = client.query("SELECT #{fields_for_query} FROM #{mapped_model} #{conditions}")
-          items.each { |item| SalesforceModel.cache.write([self, item[:Id]], item) }
+          items.each { |item| RestforceModel.cache.write([self, item[:Id]], item) }
         end
         results.map { |r| new(r.symbolize_keys) }
       end
@@ -121,23 +121,23 @@ module SalesforceModel::Actions
     #
     # It uses `#mapped_model` class method and `#query_fields` as well as the passed in `Id` to retireve a record
     #
-    # raises a `SalesforceModel::Exception::RecordNotFound` if the query returns nil
+    # raises a `RestforceModel::Exception::RecordNotFound` if the query returns nil
     #
     def find(id, client = nil)
       client ||= self.client
       ActiveSupport::Notifications.instrument("salesforce.find", :model => self.to_s) do
         begin
           # fetch data from cache or Salesforce API
-          data = SalesforceModel.cache.fetch([self, id]) do
+          data = RestforceModel.cache.fetch([self, id]) do
             client.query("SELECT #{fields_for_query} FROM #{mapped_model} WHERE Id = '#{id}'").first.symbolize_keys
           end
           # instantiate the object and pass in the exact same client it was retrieved with
-          new(data.merge({SalesforceModel.client_key => client}))
+          new(data.merge({RestforceModel.client_key => client}))
         rescue Exception => e
           # most likely the exception is due to calling symbolize_keys on nil
           # puts e.inspect
 
-          raise SalesforceModel::Error::RecordNotFound.new(e), "Record with Id: #{id} cannot be found. #{e.message}"
+          raise RestforceModel::Error::RecordNotFound.new(e), "Record with Id: #{id} cannot be found. #{e.message}"
         end
       end
     end

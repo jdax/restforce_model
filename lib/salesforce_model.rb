@@ -2,7 +2,7 @@ require 'salesforce_model/version'
 require 'active_model'
 require 'active_support'
 
-module SalesforceModel
+module RestforceModel
   extend ActiveSupport::Autoload
   autoload :Base
   # in case your application uses a per-user/per-request client, use this variable as a key to store the client using RequestStore

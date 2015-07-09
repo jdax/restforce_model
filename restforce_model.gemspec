@@ -5,7 +5,7 @@ require 'salesforce_model/version'
 
 Gem::Specification.new do |spec|
   spec.name = "salesforce_model"
-  spec.version = SalesforceModel::VERSION
+  spec.version = RestforceModel::VERSION
   spec.authors = ["Piotr Steininger", "Maggie Epps"]
   spec.email = ["piotr@socialdriver.com", "maggie@socialdriver.com"]
   spec.summary = %q{An ActiveModel wrapper to Restforce, an Salesfore REST API Cleint for Ruby }

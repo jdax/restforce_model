@@ -1,6 +1,6 @@
 require 'active_support/concern'
 
-module SalesforceModel::Picklists
+module RestforceModel::Picklists
   extend ActiveSupport::Concern
 
   def picklist_values(field, options = {})
@@ -10,7 +10,7 @@ module SalesforceModel::Picklists
   module ClassMethods
     def picklist_values(field, options = {})
       ActiveSupport::Notifications.instrument('salesforce.picklist_values', object: self.mapped_model, field: field) do
-        description = SalesforceModel.cache.fetch([self.mapped_model, 'describe'], expires_in: SalesforceModel.picklist_cache_ttl_hours) do
+        description = RestforceModel.cache.fetch([self.mapped_model, 'describe'], expires_in: RestforceModel.picklist_cache_ttl_hours) do
           client.describe(self.mapped_model)
         end
         PicklistValues.new(description['fields'], field, options).map { |elem| OpenStruct.new(elem) }

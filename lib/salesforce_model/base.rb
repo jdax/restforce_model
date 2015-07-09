@@ -7,7 +7,7 @@ require 'active_model'
 require 'active_support/concern'
 require 'request_store'
 
-module SalesforceModel
+module RestforceModel
   class Base
     include ActiveModel::Model
     include ActiveModel::Dirty
@@ -21,7 +21,7 @@ module SalesforceModel
     attr_accessor :client
 
     def initialize(attributes = {})
-      assign_client(attributes.delete(SalesforceModel.client_key))
+      assign_client(attributes.delete(RestforceModel.client_key))
       attributes.delete(:attributes)
       handle_parent_attributes(attributes)
       super(attributes)

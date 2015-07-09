@@ -1,8 +1,8 @@
 require_relative '../helper'
 
-include SalesforceModel
+include RestforceModel
 
-describe SalesforceModel do
+describe RestforceModel do
 
 
   before :all do
@@ -10,16 +10,16 @@ describe SalesforceModel do
       #config.cache = Rails.cache
       config.mashify = false
     end
-    SalesforceModel.singleton_client = Restforce.new(:username => ENV['SALESFORCE_GLOBAL_USERNAME'],
+    RestforceModel.singleton_client = Restforce.new(:username => ENV['SALESFORCE_GLOBAL_USERNAME'],
                                                      :password => ENV['SALESFORCE_GLOBAL_PASSWORD'],
                                                      :security_token => ENV['SALESFORCE_GLOBAL_SECURITY_TOKEN'])
-    SalesforceModel.singleton_client.authenticate!
+    RestforceModel.singleton_client.authenticate!
 
   end
   describe 'Client' do
     describe '#assign_client' do
-      SalesforceModel.assign_client SalesforceModel.singleton_client
-      expect(SalesforceModel.client).eq(SalesforceModel.singleton_client)
+      RestforceModel.assign_client RestforceModel.singleton_client
+      expect(RestforceModel.client).eq(RestforceModel.singleton_client)
 
     end
   end
