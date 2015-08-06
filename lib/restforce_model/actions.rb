@@ -63,7 +63,7 @@ module RestforceModel::Actions
     def to_soql(field, value)
       type = self.mapped_attributes[field]
       unless type == :string
-        converter = "RestforceModel::#{type.to_s.camelize}Converter".constantize rescue nil
+        converter = "RestforceModel::Converters::#{type.to_s.camelize}Converter".constantize rescue nil
         value = converter.to_soql(value) unless converter.nil?
       end
       value
@@ -72,7 +72,7 @@ module RestforceModel::Actions
     def from_soql(field, value)
       type = self.mapped_attributes[field]
       unless type == :string
-        converter = "RestforceModel::#{type.to_s.camelize}Converter".constantize rescue nil
+        converter = "RestforceModel::Converters::#{type.to_s.camelize}Converter".constantize rescue nil
         value = converter.from_soql(value) unless converter.nil?
       end
       value

@@ -1,5 +1,4 @@
 # RestforceModel
-[![Coverage Status](https://coveralls.io/repos/socialdriver/salesforce_model/badge.svg)](https://coveralls.io/r/socialdriver/salesforce_model)
 
 An ActiveModel wrapper to [Restforce](https://github.com/ejholmes/restforce) client. This gem provides:
  - Three options to use a Restforce client: singleton, per-user/per-request, passed in a method as reference
@@ -20,7 +19,7 @@ An ActiveModel wrapper to [Restforce](https://github.com/ejholmes/restforce) cli
 
 Add this line to your application's Gemfile:
 
-    gem 'salesforce_model', github: 'socialdriver/salesforce_model'
+    gem 'restforce_model', github: 'socialdriver/restforce_model'
 
 And then execute:
 
@@ -28,18 +27,18 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install git@github.com:socialdriver/salesforce_model.git
+    $ gem install git@github.com:socialdriver/restforce_model.git
 
 Set up these environment variables. For development we recommend [dotenv-rails](https://rubygems.org/gems/dotenv-rails)
 ```
-SALESFORCE_CLIENT_ID=<YOUR_APP_CLIENT_ID>
-SALESFORCE_CLIENT_SECRET=<YOUR_APP_CLIENT_SECRET>
-SALESFORCE_HOST=<test.salesforce.com|login.salesforce.com>
-SALESFORCE_DEBUGGING=<true|false>
-SALESFORCE_API_VERSION=<API_VERSION>
+RESTFORCE_CLIENT_ID=<YOUR_APP_CLIENT_ID>
+RESTFORCE_CLIENT_SECRET=<YOUR_APP_CLIENT_SECRET>
+RESTFORCE_HOST=<test.salesforce.com|login.salesforce.com>
+RESTFORCE_DEBUGGING=<true|false>
+RESTFORCE_API_VERSION=<API_VERSION>
 ```
 
-Create an initializer in your rails app `config/initializers/salesforce_model.rb`, it is important to set `mashify = false`, otherwise the caching will be throwing errors. Restforce will bundle a client into the `Mashie::Hash` objects, when `mashify = true`, which contains an I/O socket:
+Create an initializer in your rails app `config/initializers/restforce_model.rb`, it is important to set `mashify = false`, otherwise the caching will be throwing errors. Restforce will bundle a client into the `Mashie::Hash` objects, when `mashify = true`, which contains an I/O socket:
 
 ```ruby
 require 'restforce'
@@ -51,20 +50,20 @@ Restforce.log = !Rails.env.production?
 
 ## Client Setup Options
 ### Dedicated User
-If you're going to use one dedicated user, add the following 2 statements to the end of  `config/initializers/salesforce_model.rb`:
+If you're going to use one dedicated user, add the following 2 statements to the end of  `config/initializers/restforce_model.rb`:
 ```ruby
 RestforceModel.singleton_client = Restforce.new(
-    :username => ENV['SALESFORCE_USERNAME'],
-    :password => ENV['SALESFORCE_PASSWORD'],
-    :security_token => ENV['SALESFORCE_SECURITY_TOKEN'],
-    :api_version => ENV['SALESFORCE_API_VERSION'])
+    :username => ENV['RESTFORCE_USERNAME'],
+    :password => ENV['RESTFORCE_PASSWORD'],
+    :security_token => ENV['RESTFORCE_SECURITY_TOKEN'],
+    :api_version => ENV['RESTFORCE_API_VERSION'])
 RestforceModel.singleton_client.authenticate!
 ```
 And add the following environment variables:
 ```
-SALESFORCE_USERNAME=<YOUR_DEDICATED_USER>
-SALESFORCE_PASSWORD=<YOUR_DEDICATED_USER_PASSWORD>
-SALESFORCE_SECURITY_TOKEN=<YOUR_DEDICATED_USER_SECURITY_TOKEN>
+RESTFORCE_USERNAME=<YOUR_DEDICATED_USER>
+RESTFORCE_PASSWORD=<YOUR_DEDICATED_USER_PASSWORD>
+RESTFORCE_SECURITY_TOKEN=<YOUR_DEDICATED_USER_SECURITY_TOKEN>
 ```
 We recommend setting the user up in Salesforce with a permission profile, which prevents password expiration, and provides no ability to access the Salesforce backend, only the API. 
 ### Separate connection for each user
@@ -82,12 +81,12 @@ user_hash = {
 client = Restforce.new user_hash[:credentials]
 ```
 ### Override with a specific instance of client
-SalesForce model maske is easy to persist the client througout the request cycle, so that it can be referenced, without having to pass it in method signature, by using [request_store](https://github.com/steveklabnik/request_store):
+RestforceModel makes is easy to persist the client througout the request cycle, so that it can be referenced, without having to pass it in method signature, by using [request_store](https://github.com/steveklabnik/request_store):
 ```ruby 
 client = Restforce.new user_hash[:credentials]
 RequestStore.write(RestforceModel.client_key, client)
 ```
-You can change the actual `RestforceModel.client_key` value in `config/initializers/salesforce_model.rb`:
+You can change the actual `RestforceModel.client_key` value in `config/initializers/restforce_model.rb`:
 ```ruby 
 RestforceModel.client_key = :your_client_key
 #default is :restforce_client
@@ -142,7 +141,7 @@ end
 ```
 ## Contributing
 
-1. Fork it ( http://github.com/socialdriver/salesforce_model/fork )
+1. Fork it ( http://github.com/socialdriver/restforce_model/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)

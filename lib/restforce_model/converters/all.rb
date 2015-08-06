@@ -1,0 +1,5 @@
+require 'restforce_model/converters/boolean_converter'
+require 'restforce_model/converters/integer_converter'
+require 'restforce_model/converters/date_converter'
+require 'restforce_model/converters/date_time_converter'
+require 'restforce_model/converters/multi_select_converter'
